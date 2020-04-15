@@ -226,7 +226,14 @@ const scrapePosts = async ({ page, request, itemSpec, entryData, requestQueue, i
     if (itemSpec.userUsername) filteredItemSpec.queryUsername = itemSpec.userUsername;
     if (itemSpec.locationName) filteredItemSpec.queryLocation = itemSpec.locationName;
 
-    let output = posts[itemSpec.id].map(item => ({
+    // grab profile information, if it exists
+    const { user } = entryData.ProfilePage[0].graphql;
+    const bio = user && user.biography;
+    const numFollowers = user && user.edge_followed_by && user.edge_followed_by.count;
+    const numFollowing = user && user.edge_follow && user.edge_follow.count;
+    const numPosts = user && user.edge_owner_to_timeline_media && user.edge_owner_to_timeline_media.count;
+
+    const output = posts[itemSpec.id].map(item => ({
         '#debug': {
             ...Apify.utils.createRequestDebugInfo(request),
             ...itemSpec,
@@ -246,6 +253,10 @@ const scrapePosts = async ({ page, request, itemSpec, entryData, requestQueue, i
         locationId: (item.node.location && item.node.location.id) || null,
         ownerId: item.owner && item.owner.id || null,
         ownerUsername: (item.node.owner && item.node.owner.username) || null,
+        ownerBio: bio || null,
+        ownerNumPosts: numPosts || null,
+        ownerNumFollowers: numFollowers || null,
+        ownerNumFollowing: numFollowing || null,
     })).slice(0, request.userData.limit);
 
     if (input.expandOwners && itemSpec.pageType !== PAGE_TYPES.PROFILE) {
