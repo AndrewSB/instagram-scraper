@@ -120,6 +120,13 @@
             "description": "Function that takes a JQuery handle ($) as argument and returns data that will be merged with the default output",
             "prefill": "($) => { return {} }",
             "editor": "javascript"
+	},
+        "userDneCSV": {
+            "title": "User doesn't exist CSV",
+            "description": "Absolute path to a CSV that will be filled with all the pages that 404",
+            "editor": "textfield",
+            "type": "string",
+            "default": "dne.csv"
         }
     }
 }

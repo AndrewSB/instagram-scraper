@@ -1,5 +1,8 @@
 const Apify = require('apify');
 const _ = require('underscore');
+const fs = require('fs');
+const os = require("os");
+const path = require("path");
 
 const { log } = Apify.utils;
 const crypto = require('crypto');
@@ -16,12 +19,12 @@ async function main() {
     const input = await Apify.getInput();
     const {
         proxy,
-        resultsType,
-        resultsLimit = 200,
         maxRequestRetries,
         loginCookies,
         directUrls = [],
-    } = input;
+        userDneCSV = `${__dirname}${path.sep}..${path.sep}dne.csv`,
+        resultsType,
+        resultsLimit = 200 } = input;
 
     const extendOutputFunction = parseExtendOutputFunction(input.extendOutputFunction);
 
@@ -134,7 +137,8 @@ async function main() {
 
     const handlePageFunction = async ({ page, puppeteerPool, request, response }) => {
         if (response.status() === 404) {
-            Apify.utils.log.info(`Page "${request.url}" does not exist.`);
+            Apify.utils.log.info(`Page "${request.url}" does not exist. Writing to ${userDneCSV}`);
+            await fs.promises.appendFile(userDneCSV, `${request.url}${os.EOL}`)
             return;
         }
         // eslint-disable-next-line no-underscore-dangle
