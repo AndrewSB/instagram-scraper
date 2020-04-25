@@ -173,8 +173,13 @@ async function main() {
         } else {
             page.itemSpec = itemSpec;
 
+	    const privateUserCallback = async (privateUserUrl) => {
+		Apify.utils.log.info(`${privateUserUrl}" seems to be private. Writing to ${userDneCSV}`);
+		await fs.promises.appendFile(userDneCSV, `${request.url}${os.EOL}`)
+	    }
+
             switch (resultsType) {
-                case SCRAPE_TYPES.POSTS: return scrapePosts({ page, request, itemSpec, entryData, requestQueue, input });
+                case SCRAPE_TYPES.POSTS: return scrapePosts({ page, request, itemSpec, entryData, requestQueue, input, privateUserCallback });
                 case SCRAPE_TYPES.COMMENTS: return scrapeComments(page, request, itemSpec, entryData);
                 case SCRAPE_TYPES.DETAILS: return scrapeDetails({ input, request, request, itemSpec, entryData, page, proxy, userResult });
                 default: throw new Error('Not supported');

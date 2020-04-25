@@ -196,8 +196,9 @@ const scrapePost = (request, itemSpec, entryData) => {
  * @param {Object} itemSpec Parsed page data
  * @param {Object} entryData data from window._shared_data.entry_data
  * @param {Object} input Input provided by user
+ * @param {Object} privateUserCallback a callback to be called when the profile scraped is private
  */
-const scrapePosts = async ({ page, request, itemSpec, entryData, requestQueue, input }) => {
+const scrapePosts = async ({ page, request, itemSpec, entryData, requestQueue, input, privateUserCallback }) => {
     const timeline = getPostsFromEntryData(itemSpec.pageType, entryData);
     initData[itemSpec.id] = timeline;
 
@@ -270,6 +271,11 @@ const scrapePosts = async ({ page, request, itemSpec, entryData, requestQueue, i
         } else {
             await Apify.pushData(post);
         }
+    }
+
+    const userIsPrivate = output.length === 0;
+    if (userIsPrivate) {
+        privateUserCallback(page.url());
     }
 
     log(itemSpec, `${output.length} items saved, task finished`);
