@@ -121,6 +121,5 @@
             "prefill": "($) => { return {} }",
             "editor": "javascript"
         }
-    },
-    "required": ["proxy"]
+    }
 }

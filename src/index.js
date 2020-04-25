@@ -53,7 +53,6 @@ async function main() {
     }
 
     try {
-        if (!proxy) throw errors.proxyIsRequired();
         if (!resultsType) throw errors.typeIsRequired();
         if (!Object.values(SCRAPE_TYPES).includes(resultsType)) throw errors.unsupportedType(resultsType);
     } catch (error) {
@@ -179,7 +178,7 @@ async function main() {
         }
     };
 
-    if (proxy.apifyProxyGroups && proxy.apifyProxyGroups.length === 0) delete proxy.apifyProxyGroups;
+    if (proxy && proxy.apifyProxyGroups && proxy.apifyProxyGroups.length === 0) delete proxy.apifyProxyGroups;
 
     const requestQueue = await Apify.openRequestQueue();
 
