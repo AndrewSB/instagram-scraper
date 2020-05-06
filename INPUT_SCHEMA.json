@@ -127,6 +127,13 @@
             "editor": "textfield",
             "type": "string",
             "default": "dne.csv"
+        },
+        "restrictedUserCSV": {
+            "title": "Restricted user CSV",
+            "description": "Absolute path to a CSV that will be filled with all the users that are restricted - usually this means the viewer account needs to be logged in and >18 years old",
+            "editor": "textfield",
+            "type": "string",
+            "default": "restricted.csv"
         }
     }
 }

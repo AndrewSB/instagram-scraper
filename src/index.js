@@ -23,6 +23,7 @@ async function main() {
         loginCookies,
         directUrls = [],
         userDneCSV = `${__dirname}${path.sep}..${path.sep}dne.csv`,
+        restrictedUserCSV = `${__dirname}${path.sep}..${path.sep}restricted.csv`,
         resultsType,
         resultsLimit = 200 } = input;
 
@@ -141,8 +142,21 @@ async function main() {
             await fs.promises.appendFile(userDneCSV, `${request.url}${os.EOL}`)
             return;
         }
+
+        const restrictedPageClassName = '.-cx-PRIVATE-GatedContentPage__userAvatarContainer';
+        const wasRestricted = await page.waitForSelector(restrictedPageClassName, { timeout: 100 })
+            .then(async () => {
+                Apify.utils.log.info(`${page.url()}" seems to be restricted. Writing to ${restrictedUserCSV}`);
+                await fs.promises.appendFile(restrictedUserCSV, `${request.url}${os.EOL}`);
+            })
+            .then(() => true)
+            .catch(() => false);
+        if (wasRestricted) {
+            return;
+        }
+
         // eslint-disable-next-line no-underscore-dangle
-        await page.waitFor(() => (!window.__initialData.pending && window.__initialData && window.__initialData.data), { timeout: 20000 });
+        await page.waitForFunction(() => (window.__initialData && !window.__initialData.pending && window.__initialData.data), { timeout: 200000 });
         // eslint-disable-next-line no-underscore-dangle
         const { pending, data } = await page.evaluate(() => window.__initialData);
         if (pending) throw new Error('Page took too long to load initial data, trying again.');
@@ -196,6 +210,10 @@ async function main() {
         requestQueue,
         gotoFunction,
         maxRequestRetries,
+        autoscaledPoolOptions: {
+            snapshotterOptions: { maxBlockedMillis: 500 },
+            systemStatusOptions: { maxEventLoopOverloadedRatio: 0.9 },
+        },
         puppeteerPoolOptions: {
             maxOpenPagesPerInstance: 1,
             retireInstanceAfterRequestCount: 30,
