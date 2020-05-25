@@ -234,6 +234,14 @@ const scrapePosts = async ({ page, request, itemSpec, entryData, requestQueue, i
     const numFollowing = user && user.edge_follow && user.edge_follow.count;
     const numPosts = user && user.edge_owner_to_timeline_media && user.edge_owner_to_timeline_media.count;
 
+    // grab business information, if business account
+    const isBusinessAccount = user && user.is_business_account;
+    const businessCategoryName = isBusinessAccount && user.business_category_name;
+    const businessCategoryId = isBusinessAccount && user.category_id;
+    const businessCategoryOverallName = isBusinessAccount && user.overall_category_name;
+    const businessCategoryEnum = isBusinessAccount && user.category_enum;
+
+
     const output = posts[itemSpec.id].map(item => ({
         '#debug': {
             ...Apify.utils.createRequestDebugInfo(request),
@@ -241,6 +249,12 @@ const scrapePosts = async ({ page, request, itemSpec, entryData, requestQueue, i
             shortcode: item.node.shortcode,
             postLocationId: (item.node.location && item.node.location.id) || null,
             postOwnerId: (item.node.owner && item.node.owner.id) || null,
+            isBusinessAccount: isBusinessAccount || null,
+            businessCategoryName: businessCategoryName || null,
+            businessCategoryId: businessCategoryId || null,
+            businessCategoryOverallName: businessCategoryOverallName || null,
+            businessCategoryEnum: businessCategoryEnum || null,
+            isVerified: user.is_verified || null,
         },
         ...filteredItemSpec,
         alt: item.node.accessibility_caption,
